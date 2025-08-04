@@ -41,13 +41,29 @@ class TeacherController extends Controller
                 'subject_specialization' => 'required|string|max:100',
                 'employee_id' => 'required|string|max:20|unique:teachers',
                 'date_of_joining' => 'required|date',
+            ], [
+                'username.unique' => 'This username is already taken. Please choose a different username.',
+                'email.unique' => 'This email address is already registered. Please use a different email.',
+                'employee_id.unique' => 'This employee ID is already in use. Please use a different employee ID.',
             ]);
 
             if ($validator->fails()) {
+                // Check if it's a unique constraint violation and provide specific message
+                $errors = $validator->errors();
+                $message = 'Validation failed';
+                
+                if ($errors->has('username')) {
+                    $message = 'Username already exists. Please choose a different username.';
+                } elseif ($errors->has('email')) {
+                    $message = 'Email already exists. Please use a different email address.';
+                } elseif ($errors->has('employee_id')) {
+                    $message = 'Employee ID already exists. Please use a different employee ID.';
+                }
+                
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'message' => $message,
+                    'errors' => $errors
                 ], 422);
             }
 

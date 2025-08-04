@@ -43,13 +43,29 @@ class StudentController extends Controller
                 'date_of_birth' => 'required|date',
                 'admission_date' => 'required|date',
                 'assigned_teacher_id' => 'nullable|exists:teachers,id',
+            ], [
+                'username.unique' => 'This username is already taken. Please choose a different username.',
+                'email.unique' => 'This email address is already registered. Please use a different email.',
+                'roll_number.unique' => 'This roll number is already assigned to another student. Please use a different roll number.',
             ]);
 
             if ($validator->fails()) {
+                // Check if it's a unique constraint violation and provide specific message
+                $errors = $validator->errors();
+                $message = 'Validation failed';
+                
+                if ($errors->has('username')) {
+                    $message = 'Username already exists. Please choose a different username.';
+                } elseif ($errors->has('email')) {
+                    $message = 'Email already exists. Please use a different email address.';
+                } elseif ($errors->has('roll_number')) {
+                    $message = 'Roll number already exists. Please use a different roll number.';
+                }
+                
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'message' => $message,
+                    'errors' => $errors
                 ], 422);
             }
 

@@ -69,7 +69,7 @@ export default function Login() {
           School Management System
         </Typography>
 
-        <Paper sx={{ padding: 4, maxWidth: 400, margin: '0 auto' }}>
+        <Paper elevation={10} sx={{ padding: 4, maxWidth: 400, margin: '0 auto' }}>
           
          
           
@@ -112,16 +112,7 @@ export default function Login() {
             
           </form>
 
-          <Button
-            type="button"
-            fullWidth
-            sx={{mt:2}}
-            variant="outlined"
-            size="large"
-            onClick={()=>navigate('/forgot')}
-          >
-            Forgot Password
-          </Button>
+          
         </Paper>
       </Box>
     </Box>

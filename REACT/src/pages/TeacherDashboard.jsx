@@ -1,4 +1,4 @@
-import { Box, Typography, Card, CardContent, Button } from "@mui/material";
+import { Box, Typography, Card, CardContent, Button, Paper } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axios"; 
@@ -59,17 +59,16 @@ export default function TeacherDashboard() {
 
   return (
     <Box sx={{ 
-      maxWidth: '1200px', 
+      maxWidth: '1000px', 
       margin: '0 auto', 
       padding: 2,
-      minHeight: '100vh'
+      
     }}>
+      
       <Box mt={5}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
           <Typography variant="h3">Teacher Dashboard</Typography>
-          <Button variant="contained" color="secondary" onClick={handleLogout}>
-            Logout
-          </Button>
+
         </Box>
         
         <Box mb={4}>
@@ -81,57 +80,52 @@ export default function TeacherDashboard() {
 
         <Box>
           <Typography variant="h5" mb={3}>Actions</Typography>
-          
+          <Box display="flex" alignItems="center" mb={4}>
           <Button
-            fullWidth
             variant="contained"
-            size="large"
-            sx={{ py: 2, mb: 2 }}
+            sx={{py:2, mb: 2,mr:2 }}
             onClick={() => navigate('/students')}
           >
             View All Students
           </Button>
           
           <Button
-            fullWidth
             variant="contained"
-            size="large"
-            sx={{ py: 2, mb: 2 }}
+            sx={{ py: 2, mb: 2 ,mr:2}}
             onClick={() => navigate('/teachers')}
           >
             View All Teachers
           </Button>
           
           <Button
-            fullWidth
-            variant="outlined"
-            size="large"
-            sx={{ py: 2, mb: 2 }}
+            variant="contained"
+            sx={{ py: 2, mb: 2 ,mr:2}}
           >
             Show Profile
           </Button>
           
           <Button
-            fullWidth
-            variant="outlined"
-            size="large"
-            sx={{ py: 2, mb: 2 }}
+            variant="contained"
+            sx={{ py: 2, mb: 2 ,mr:2}}
           >
             Update Profile
           </Button>
 
           <Button
-            fullWidth
             variant="contained"
             onClick={()=>navigate('/change')}
-            size="large"
-            sx={{ py: 2 }}
+            sx={{ py: 2,mb:2 ,mr:2}}
           >
             Change Password
           </Button>
-          
+
+          </Box>
+                               <Button variant="contained" color="secondary" onClick={handleLogout}>
+            Logout
+          </Button>
         </Box>
       </Box>
+      
     </Box>
   );
 }

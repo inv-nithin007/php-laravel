@@ -28,11 +28,6 @@ export default function AdminDashboard() {
         Welcome, {user.username}
       </Typography>
 
-      <Alert severity="success" sx={{ mb: 3 }}>
-        <Typography variant="body2">
-          <strong>System Status:</strong> School Management System is now fully operational! All features are enabled using file-based storage.
-        </Typography>
-      </Alert>
 
       <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>Manage Teachers</Typography>

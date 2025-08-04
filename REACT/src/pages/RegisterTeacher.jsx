@@ -1,6 +1,7 @@
 // Professional Teacher Registration Component
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { 
   Box, 
   Typography, 
@@ -23,18 +24,8 @@ export default function RegisterTeacher({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   
-  // Form state
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
-    subjectSpecialization: '',
-    employeeId: '',
-    dateOfJoining: ''
-  });
+  // React Hook Form
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
   const handleClose = () => {
     if (onClose) {
@@ -69,45 +60,8 @@ export default function RegisterTeacher({ onClose }) {
     setIsAuthorized(true);
   };
 
-  const handleChange = (field, value) => {
-    setFormData({
-      ...formData,
-      [field]: value
-    });
-  };
-
-  const validateForm = () => {
-    if (!formData.username) return 'Username is required';
-    if (!formData.email) return 'Email is required';
-    if (!formData.password) return 'Password is required';
-    if (!formData.firstName) return 'First name is required';
-    if (!formData.lastName) return 'Last name is required';
-    if (!formData.phoneNumber) return 'Phone number is required';
-    if (!formData.subjectSpecialization) return 'Subject specialization is required';
-    if (!formData.employeeId) return 'Employee ID is required';
-    if (!formData.dateOfJoining) return 'Date of joining is required';
-    
-    if (!formData.email.includes('@')) {
-      return 'Please enter a valid email';
-    }
-    
-    if (formData.password.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-    
-    return null;
-  };
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (formData) => {
     setMessage('');
-    
-    const error = validateForm();
-    if (error) {
-      setMessage(error);
-      return;
-    }
-    
     setLoading(true);
 
     try {
@@ -192,110 +146,124 @@ export default function RegisterTeacher({ onClose }) {
         )}
 
         <Paper sx={{ padding: 4, margin: '0 auto' }}>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <Typography variant="h6" sx={{ marginBottom: 3 }}>Teacher Details</Typography>
-        <Box display="flex"  alignItems="center" mb={4}>
-            <TextField
-             
-              label="First Name"
-              value={formData.firstName}
-              onChange={(e) => handleChange('firstName', e.target.value)}
-              placeholder="Enter first name"
-              sx={{ marginBottom: 3 ,mr:2}}
-              required
-            />
             
-            <TextField
+            <Box display="flex" alignItems="center" mb={4}>
+              <TextField
+                label="First Name"
+                placeholder="Enter first name"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("firstName", { required: "First name is required" })}
+                error={!!errors.firstName}
+                helperText={errors.firstName?.message}
+                required
+              />
               
-              label="Last Name"
-              value={formData.lastName}
-              onChange={(e) => handleChange('lastName', e.target.value)}
-              placeholder="Enter last name"
-              sx={{ marginBottom: 3,mr:2 }}
-              required
-            />
+              <TextField
+                label="Last Name"
+                placeholder="Enter last name"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("lastName", { required: "Last name is required" })}
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
+                required
+              />
 
-            <TextField
-              
-              label="Username"
-              value={formData.username}
-              onChange={(e) => handleChange('username', e.target.value)}
-              placeholder="Enter username"
-              sx={{ marginBottom: 3 ,mr:2}}
-              required
-            />
+              <TextField
+                label="Username"
+                placeholder="Enter username"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("username", { required: "Username is required" })}
+                error={!!errors.username}
+                helperText={errors.username?.message}
+                required
+              />
             </Box>
-            <Box display="flex"  alignItems="center" mb={4}>
             
-            <TextField
-              
-              label="Email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              placeholder="Enter email"
-              sx={{ marginBottom: 3 ,mr:2}}
-              required
-            />
+            <Box display="flex" alignItems="center" mb={4}>
+              <TextField
+                label="Email"
+                type="email"
+                placeholder="Enter email"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("email", { 
+                  required: "Email is required",
+                  pattern: {
+                    value: /^\\S+@\\S+$/i,
+                    message: "Invalid email address"
+                  }
+                })}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                required
+              />
 
-            <TextField
+              <TextField
+                label="Password"
+                type="password"
+                placeholder="Enter password"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("password", { 
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters"
+                  }
+                })}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                required
+              />
               
-              label="Password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleChange('password', e.target.value)}
-              placeholder="Enter password"
-              sx={{ marginBottom: 3 ,mr:2}}
-              required
-            />
-            
-            <TextField
-              
-              label="Phone Number"
-              value={formData.phoneNumber}
-              onChange={(e) => handleChange('phoneNumber', e.target.value)}
-              placeholder="Enter phone number"
-              sx={{ marginBottom: 3 ,mr:2}}
-              required
-            />
+              <TextField
+                label="Phone Number"
+                placeholder="Enter phone number"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("phoneNumber", { required: "Phone number is required" })}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber?.message}
+                required
+              />
             </Box>
-        <Box display="flex"  alignItems="center" mb={4}>
-            <TextField
-
-              select
-              label="Subject Specialization"
-              value={formData.subjectSpecialization}
-              onChange={(e) => handleChange('subjectSpecialization', e.target.value)}
-              sx={{ marginBottom: 3,mr:2 ,maxWidth:'230px',width:'100%'}}
-              required
-            >
-              {SUBJECTS.map((subject) => (
-                <MenuItem key={subject} value={subject}>
-                  {subject}
-                </MenuItem>
-              ))}
-            </TextField>
             
-            <TextField
+            <Box display="flex" alignItems="center" mb={4}>
+              <TextField
+                select
+                label="Subject Specialization"
+                sx={{ marginBottom: 3, mr: 2, maxWidth:'230px', width:'100%' }}
+                {...register("subjectSpecialization", { required: "Subject specialization is required" })}
+                error={!!errors.subjectSpecialization}
+                helperText={errors.subjectSpecialization?.message}
+                required
+              >
+                {SUBJECTS.map((subject) => (
+                  <MenuItem key={subject} value={subject}>
+                    {subject}
+                  </MenuItem>
+                ))}
+              </TextField>
               
-              label="Employee ID"
-              value={formData.employeeId}
-              onChange={(e) => handleChange('employeeId', e.target.value)}
-              placeholder="Enter employee ID"
-              sx={{ marginBottom: 3,mr:2 }}
-              required
-            />
+              <TextField
+                label="Employee ID"
+                placeholder="Enter employee ID"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("employeeId", { required: "Employee ID is required" })}
+                error={!!errors.employeeId}
+                helperText={errors.employeeId?.message}
+                required
+              />
 
-            <TextField
-              
-              label="Date of Joining"
-              type="date"
-              value={formData.dateOfJoining}
-              onChange={(e) => handleChange('dateOfJoining', e.target.value)}
-              InputLabelProps={{ shrink: true }}
-              sx={{ marginBottom: 3,mr:2 }}
-              required
-            />
+              <TextField
+                label="Date of Joining"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("dateOfJoining", { required: "Date of joining is required" })}
+                error={!!errors.dateOfJoining}
+                helperText={errors.dateOfJoining?.message}
+                required
+              />
             </Box>
 
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 3 }}>
@@ -312,9 +280,9 @@ export default function RegisterTeacher({ onClose }) {
                 type="submit" 
                 variant="contained" 
                 size="large"
-                disabled={loading}
+                disabled={loading || isSubmitting}
               >
-                {loading ? "Registering..." : "Register Teacher"}
+                {loading || isSubmitting ? "Registering..." : "Register Teacher"}
               </Button>
             </Box>
           </form>
