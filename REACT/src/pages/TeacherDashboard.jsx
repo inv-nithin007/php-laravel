@@ -1,0 +1,137 @@
+import { Box, Typography, Card, CardContent, Button } from "@mui/material";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "../utils/axios"; 
+
+export default function TeacherDashboard() {
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user");
+    
+    if (!token || !userData) {
+      navigate("/login");
+      return;
+    }
+    
+    const parsedUser = JSON.parse(userData);
+    setUser({
+      name: parsedUser.first_name || parsedUser.username,
+      role: "teacher",
+      email: parsedUser.email
+    });
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
+  const handleViewStudents = async () => {
+    try {
+      
+      const response = await axios.get('/api/students');
+      console.log("Students:", response.data);
+
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
+  };
+
+
+
+  if (!user) {
+    return (
+      <Box sx={{ 
+        maxWidth: '400px', 
+        margin: '0 auto', 
+        padding: 2,
+        textAlign: 'center',
+        mt: 10
+      }}>
+        <Typography variant="h5">Loading...</Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ 
+      maxWidth: '1200px', 
+      margin: '0 auto', 
+      padding: 2,
+      minHeight: '100vh'
+    }}>
+      <Box mt={5}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+          <Typography variant="h3">Teacher Dashboard</Typography>
+          <Button variant="contained" color="secondary" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Box>
+        
+        <Box mb={4}>
+          <Typography variant="h5" mb={2}>Welcome back, {user.name}!</Typography>
+          <Typography color="textSecondary" mb={1}>
+            Email: {user.email}
+          </Typography>
+        </Box>
+
+        <Box>
+          <Typography variant="h5" mb={3}>Actions</Typography>
+          
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            sx={{ py: 2, mb: 2 }}
+            onClick={() => navigate('/students')}
+          >
+            View All Students
+          </Button>
+          
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            sx={{ py: 2, mb: 2 }}
+            onClick={() => navigate('/teachers')}
+          >
+            View All Teachers
+          </Button>
+          
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            sx={{ py: 2, mb: 2 }}
+          >
+            Show Profile
+          </Button>
+          
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            sx={{ py: 2, mb: 2 }}
+          >
+            Update Profile
+          </Button>
+
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={()=>navigate('/change')}
+            size="large"
+            sx={{ py: 2 }}
+          >
+            Change Password
+          </Button>
+          
+        </Box>
+      </Box>
+    </Box>
+  );
+}

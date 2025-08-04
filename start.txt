@@ -1,0 +1,65 @@
+# School Management System - Startup Instructions
+
+## Quick Start Commands (Copy & Paste)
+
+### 1. Start Backend (Laravel API Server)
+```bash
+cd /home/nithinkrishna/school-m
+/opt/lampp/bin/php artisan serve --host=127.0.0.1 --port=8000
+```
+
+### 2. Start Frontend (React Application)
+Open a new terminal:
+```bash
+cd /home/nithinkrishna/school-m/REACT
+npm run dev
+```
+
+## Step-by-Step Instructions
+
+### Backend Setup:
+1. Open terminal
+2. Navigate to project directory: `cd /home/nithinkrishna/school-m`
+3. Start Laravel server: `/opt/lampp/bin/php artisan serve --host=127.0.0.1 --port=8000`
+4. Keep this terminal open - Backend will run on http://127.0.0.1:8000
+
+### Frontend Setup:
+1. Open a NEW terminal (don't close the backend terminal)
+2. Navigate to React directory: `cd /home/nithinkrishna/school-m/REACT`
+3. Start React development server: `npm run dev`
+4. Frontend will run on http://localhost:5173 (or similar port shown in terminal)
+
+### Access the Application:
+- **Frontend URL**: http://localhost:5173 (check terminal for exact port)
+- **Admin Login**: 
+  - Username: `admin`
+  - Password: `admin123`
+
+### Troubleshooting:
+
+**If Backend fails to start:**
+- Check if XAMPP is running: `/opt/lampp/lampp status`
+- Start XAMPP if needed: `sudo /opt/lampp/lampp start`
+- Make sure MySQL is running for database connection
+
+**If Frontend fails to start:**
+- Make sure you're in the REACT directory
+- Run `npm install` if packages are missing
+- Check if port 5173 is already in use
+
+**Database Connection Issues:**
+- Ensure XAMPP MySQL is running
+- Database name: `school_management`
+- All tables should be created automatically
+
+### Important Notes:
+- Always start Backend FIRST, then Frontend
+- Keep both terminals open while using the application
+- Use XAMPP's PHP (`/opt/lampp/bin/php`) not system PHP
+- Backend runs on port 8000, Frontend on port 5173 (usually)
+
+### API Endpoints (for testing):
+- System Health Check: http://127.0.0.1:8000/api/test
+- Authentication: http://127.0.0.1:8000/api/auth/login
+- Student Management: http://127.0.0.1:8000/api/students
+- Teacher Management: http://127.0.0.1:8000/api/teachers
