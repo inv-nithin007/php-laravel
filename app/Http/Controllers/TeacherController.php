@@ -128,60 +128,6 @@ class TeacherController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
-    {
-        try {
-            $teacher = Teacher::findOrFail($id);
-
-            $validator = Validator::make($request->all(), [
-                'first_name' => 'sometimes|required|string|min:2|max:50',
-                'last_name' => 'sometimes|required|string|min:2|max:50',
-                'email' => 'sometimes|required|email|max:100|unique:users,email,' . $teacher->user_id,
-                'phone_number' => 'sometimes|required|string|max:20',
-                'subject_specialization' => 'sometimes|required|string|max:100',
-                'employee_id' => 'sometimes|required|string|max:20|unique:teachers,employee_id,' . $id,
-                'date_of_joining' => 'sometimes|required|date',
-                'status' => 'sometimes|required|in:active,inactive'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            DB::beginTransaction();
-
-            $teacher->update($request->only([
-                'first_name', 'last_name', 'email', 'phone_number',
-                'subject_specialization', 'employee_id', 'date_of_joining', 'status'
-            ]));
-
-            // Update user email if provided
-            if ($request->has('email')) {
-                $teacher->user->update(['email' => $request->email]);
-            }
-
-            DB::commit();
-
-            $teacher->load('user');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Teacher updated successfully',
-                'data' => $teacher
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating teacher: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function destroy($id)
     {

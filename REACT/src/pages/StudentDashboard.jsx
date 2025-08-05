@@ -109,20 +109,9 @@ export default function StudentDashboard() {
          
           
           <Button
-            
             variant="contained"
-            
             sx={{ py: 2, mb: 2 ,mr:2}}
-            onClick={handleViewProfile}
-          >
-            Show Profile
-          </Button>
-          
-          <Button
-            
-            variant="contained"
-            
-            sx={{ py: 2, mb: 2 ,mr:2}}
+            onClick={() => navigate('/student-profile')}
           >
             Update Profile
           </Button>

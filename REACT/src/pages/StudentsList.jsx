@@ -14,6 +14,48 @@ export default function StudentsList() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(null);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/students');
+      console.log('Students response:', response.data);
+      setStudents(response.data.data || response.data || []);
+      setMessage(''); // Clear any previous messages
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      setMessage('Error loading students');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get current user to check if admin
+  const getCurrentUser = () => {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  };
+
+  const handleDeleteStudent = async (studentId) => {
+    if (!window.confirm('Are you sure you want to delete this student?')) {
+      return;
+    }
+
+    try {
+      setDeleteLoading(studentId);
+      await axios.delete(`/api/students/${studentId}`);
+      setMessage('Student deleted successfully');
+      // Remove deleted student from state
+      setStudents(students.filter(student => student.id !== studentId));
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred';
+      setMessage('Error deleting student: ' + errorMessage);
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
 
   const handleBack = () => {
     const userData = localStorage.getItem('user');
@@ -30,20 +72,6 @@ export default function StudentsList() {
   };
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get('/api/students');
-        console.log('Students response:', response.data);
-        setStudents(response.data.data || response.data || []);
-      } catch (error) {
-        console.error('Error fetching students:', error);
-        setMessage('Error loading students');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStudents();
   }, []);
 
@@ -62,7 +90,10 @@ export default function StudentsList() {
       </Typography>
       
       {message && (
-        <Alert sx={{ mb: 2 }}>
+        <Alert 
+          severity={message.includes('successfully') ? 'success' : 'error'} 
+          sx={{ mb: 2 }}
+        >
           {message}
         </Alert>
       )}
@@ -94,17 +125,37 @@ export default function StudentsList() {
                   Phone: {student.phone_number}
                 </Typography>
               </Box>
-              <Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Typography variant="body2" color="textSecondary">
                   Status: {student.status}
                 </Typography>
+                {getCurrentUser()?.role === 'admin' && (
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={() => handleDeleteStudent(student.id)}
+                    disabled={deleteLoading === student.id}
+                    sx={{ alignSelf: 'flex-end' }}
+                  >
+                    {deleteLoading === student.id ? 'Deleting...' : 'Delete'}
+                  </Button>
+                )}
               </Box>
             </Box>
           </Paper>
         ))
       )}
 
-      <Box textAlign="center">
+      <Box textAlign="center" sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+        <Button 
+          onClick={fetchStudents}
+          variant="contained"
+          size="large"
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Refresh'}
+        </Button>
         <Button 
           onClick={handleBack}
           variant="outlined"

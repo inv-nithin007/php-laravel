@@ -30,16 +30,6 @@ export default function TeacherDashboard() {
     navigate("/login");
   };
 
-  const handleViewStudents = async () => {
-    try {
-      
-      const response = await axios.get('/api/students');
-      console.log("Students:", response.data);
-
-    } catch (error) {
-      console.error("Error fetching students:", error);
-    }
-  };
 
 
 
@@ -100,13 +90,7 @@ export default function TeacherDashboard() {
           <Button
             variant="contained"
             sx={{ py: 2, mb: 2 ,mr:2}}
-          >
-            Show Profile
-          </Button>
-          
-          <Button
-            variant="contained"
-            sx={{ py: 2, mb: 2 ,mr:2}}
+            onClick={() => navigate('/teacher-profile')}
           >
             Update Profile
           </Button>

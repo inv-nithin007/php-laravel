@@ -26,7 +26,7 @@ export default function RegisterStudent({ onClose }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   
   // React Hook Form
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm();
 
   const handleClose = () => {
     if (onClose) {
@@ -165,31 +165,14 @@ export default function RegisterStudent({ onClose }) {
       }
       
     } catch (error) {
-      console.error('Student registration error:', error);
+      
       setMessage('Registration failed. Please try again.');
     }
     
     setLoading(false);
   };
 
-  // Show loading or unauthorized message
-  if (!isAuthorized) {
-    return (
-      <Box sx={{ 
-        maxWidth: '600px', 
-        margin: '0 auto', 
-        padding: 2,
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Typography variant="h6" color="error">
-          {message || 'Checking authorization...'}
-        </Typography>
-      </Box>
-    );
-  }
+
 
   return (
     <Box sx={{ 
@@ -281,15 +264,23 @@ export default function RegisterStudent({ onClose }) {
               />
               
               <TextField
-                label="Phone Number"
-                placeholder="Enter phone number"
+                label="Confirm Password"
+                type="password"
+                placeholder="Confirm password"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("phoneNumber", { required: "Phone number is required" })}
-                error={!!errors.phoneNumber}
-                helperText={errors.phoneNumber?.message}
+                {...register("confirmPassword", { 
+                  required: "Please confirm your password",
+                  validate: (value) => {
+                    return value === watch('password') || "Passwords do not match";
+                  }
+                })}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword?.message}
                 required
               />
             </Box>
+
+            
 
             <Box display="flex" alignItems="center" mb={4}>
               <TextField
@@ -332,6 +323,15 @@ export default function RegisterStudent({ onClose }) {
 
             <Box display="flex" alignItems="center" mb={4}>
               <TextField
+                label="Phone Number"
+                placeholder="Enter phone number"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("phoneNumber", { required: "Phone number is required" })}
+                error={!!errors.phoneNumber}
+                helperText={errors.phoneNumber?.message}
+                required
+              />
+              <TextField
                 label="Admission Date"
                 type="date"
                 InputLabelProps={{ shrink: true }}
@@ -360,7 +360,8 @@ export default function RegisterStudent({ onClose }) {
 
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mt: 3 }}>
               <Button
-                variant="outlined"
+                variant="contained"
+                color='error'
                 size="large"
                 onClick={handleClose}
                 disabled={loading}
@@ -374,7 +375,7 @@ export default function RegisterStudent({ onClose }) {
                 size="large"
                 disabled={loading}
               >
-                {loading ? "Registering..." : "Register Student"}
+            Register Student
               </Button>
             </Box>
           </form>

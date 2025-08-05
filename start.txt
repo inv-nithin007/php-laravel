@@ -63,3 +63,53 @@ npm run dev
 - Authentication: http://127.0.0.1:8000/api/auth/login
 - Student Management: http://127.0.0.1:8000/api/students
 - Teacher Management: http://127.0.0.1:8000/api/teachers
+
+## 🗄️ Database Access (phpMyAdmin)
+
+### Viewing Database in phpMyAdmin:
+
+**Primary phpMyAdmin URL:**
+```
+http://localhost:8080/phpmyadmin/
+```
+
+**Alternative URLs to try:**
+```
+http://localhost:8081/phpmyadmin/
+http://localhost/phpmyadmin/
+```
+
+### Login Instructions:
+1. Open web browser
+2. Go to: **http://localhost:8080/phpmyadmin/**
+3. Login credentials:
+   - **Username:** `root`
+   - **Password:** *(leave empty)*
+4. Click **"Go"**
+
+### Database Overview:
+- **Database Name:** `school_management`
+- **Tables Created:**
+  - ✅ **users** - Main authentication table (id, username, email, password, role, status)
+  - ✅ **teachers** - Teacher profiles (user_id, first_name, last_name, employee_id, subject_specialization, etc.)
+  - ✅ **students** - Student profiles (user_id, first_name, last_name, roll_number, class_grade, assigned_teacher_id, etc.)
+  - ✅ **migrations** - Laravel migration tracking
+
+### Database Relationships:
+- **teachers.user_id** → **users.id** (Foreign Key)
+- **students.user_id** → **users.id** (Foreign Key)  
+- **students.assigned_teacher_id** → **teachers.id** (Foreign Key)
+
+### What You'll See:
+1. **Professional database structure** with proper relationships
+2. **Foreign key constraints** ensuring data integrity
+3. **Laravel migration system** for version control
+4. **Clean table design** following database best practices
+5. **Empty tables** ready for data (use Laravel API to populate)
+
+### Database Features:
+- **Role-based access:** admin, teacher, student
+- **Unique constraints:** usernames, emails, employee IDs, roll numbers
+- **Proper data types:** bigint for IDs, varchar for text, date for dates, enum for status
+- **Laravel timestamps:** created_at, updated_at on all tables
+- **Cascade deletes:** User deletion removes associated teacher/student records

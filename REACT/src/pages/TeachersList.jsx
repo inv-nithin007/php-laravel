@@ -14,6 +14,48 @@ export default function TeachersList() {
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(null);
+
+  const fetchTeachers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/teachers');
+      console.log('Teachers response:', response.data);
+      setTeachers(response.data.data || response.data || []);
+      setMessage(''); // Clear any previous messages
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+      setMessage('Error loading teachers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get current user to check if admin
+  const getCurrentUser = () => {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  };
+
+  const handleDeleteTeacher = async (teacherId) => {
+    if (!window.confirm('Are you sure you want to delete this teacher?')) {
+      return;
+    }
+
+    try {
+      setDeleteLoading(teacherId);
+      await axios.delete(`/api/teachers/${teacherId}`);
+      setMessage('Teacher deleted successfully');
+      // Remove deleted teacher from state
+      setTeachers(teachers.filter(teacher => teacher.id !== teacherId));
+    } catch (error) {
+      console.error('Error deleting teacher:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred';
+      setMessage('Error deleting teacher: ' + errorMessage);
+    } finally {
+      setDeleteLoading(null);
+    }
+  };
 
   const handleBack = () => {
     const userData = localStorage.getItem('user');
@@ -30,20 +72,6 @@ export default function TeachersList() {
   };
 
   useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get('/api/teachers');
-        console.log('Teachers response:', response.data);
-        setTeachers(response.data.data || response.data || []);
-      } catch (error) {
-        console.error('Error fetching teachers:', error);
-        setMessage('Error loading teachers');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTeachers();
   }, []);
 
@@ -62,7 +90,10 @@ export default function TeachersList() {
       </Typography>
       
       {message && (
-        <Alert sx={{ mb: 2 }}>
+        <Alert 
+          severity={message.includes('successfully') ? 'success' : 'error'} 
+          sx={{ mb: 2 }}
+        >
           {message}
         </Alert>
       )}
@@ -94,17 +125,37 @@ export default function TeachersList() {
                   Phone: {teacher.phone_number}
                 </Typography>
               </Box>
-              <Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 <Typography variant="body2" color="textSecondary">
                   Status: {teacher.status}
                 </Typography>
+                {getCurrentUser()?.role === 'admin' && (
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={() => handleDeleteTeacher(teacher.id)}
+                    disabled={deleteLoading === teacher.id}
+                    sx={{ alignSelf: 'flex-end' }}
+                  >
+                    {deleteLoading === teacher.id ? 'Deleting...' : 'Delete'}
+                  </Button>
+                )}
               </Box>
             </Box>
           </Paper>
         ))
       )}
 
-      <Box textAlign="center">
+      <Box textAlign="center" sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+        <Button 
+          onClick={fetchTeachers}
+          variant="contained"
+          size="large"
+          disabled={loading}
+        >
+          {loading ? 'Loading...' : 'Refresh'}
+        </Button>
         <Button 
           onClick={handleBack}
           variant="outlined"

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
         if (!auth()->check()) {
             return response()->json([
@@ -16,10 +16,12 @@ class RoleMiddleware
             ], 401);
         }
 
-        if (auth()->user()->role !== $role) {
+        $userRole = auth()->user()->role;
+        
+        if (!in_array($userRole, $roles)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Access denied. Required role: ' . $role
+                'message' => 'Access denied. Required roles: ' . implode(', ', $roles)
             ], 403);
         }
 

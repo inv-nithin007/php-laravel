@@ -23,14 +23,12 @@ Route::middleware(['auth:api'])->group(function () {
         // User registration - Admin only
         Route::post('/auth/register', [AuthController::class, 'register']);
         
-        // Teacher management - Admin only
+        // Teacher management - Admin only (Create & Delete only)
         Route::post('/teachers', [TeacherController::class, 'store']);
-        Route::put('/teachers/{id}', [TeacherController::class, 'update']);
         Route::delete('/teachers/{id}', [TeacherController::class, 'destroy']);
         
-        // Student management - Admin only
+        // Student management - Admin only (Create & Delete only)
         Route::post('/students', [StudentController::class, 'store']);
-        Route::put('/students/{id}', [StudentController::class, 'update']);
         Route::delete('/students/{id}', [StudentController::class, 'destroy']);
     });
     
@@ -39,4 +37,13 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/teachers/{id}', [TeacherController::class, 'show']);
     Route::get('/students', [StudentController::class, 'index']);
     Route::get('/students/{id}', [StudentController::class, 'show']);
+    
+    // Self-profile management routes (Teachers and Students only)
+    Route::middleware(['role:teacher,student'])->group(function () {
+        Route::get('/profile', [AuthController::class, 'getProfile']);
+        Route::put('/profile', [AuthController::class, 'updateProfile']);
+    });
+    
+    // Password change route (All authenticated users)
+    Route::put('/change-password', [AuthController::class, 'changePassword']);
 });

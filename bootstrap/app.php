@@ -14,10 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
-        
-        // Remove auth middleware from API routes for testing
-        $middleware->api([]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

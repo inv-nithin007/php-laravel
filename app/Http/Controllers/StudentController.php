@@ -132,63 +132,6 @@ class StudentController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
-    {
-        try {
-            $student = Student::findOrFail($id);
-
-            $validator = Validator::make($request->all(), [
-                'first_name' => 'sometimes|required|string|min:2|max:50',
-                'last_name' => 'sometimes|required|string|min:2|max:50',
-                'email' => 'sometimes|required|email|max:100|unique:users,email,' . $student->user_id,
-                'phone_number' => 'sometimes|required|string|max:20',
-                'roll_number' => 'sometimes|required|string|max:20|unique:students,roll_number,' . $id,
-                'class_grade' => 'sometimes|required|string|max:50',
-                'date_of_birth' => 'sometimes|required|date',
-                'admission_date' => 'sometimes|required|date',
-                'assigned_teacher_id' => 'sometimes|nullable|exists:teachers,id',
-                'status' => 'sometimes|required|in:active,inactive'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            DB::beginTransaction();
-
-            $student->update($request->only([
-                'first_name', 'last_name', 'email', 'phone_number',
-                'roll_number', 'class_grade', 'date_of_birth', 'admission_date',
-                'assigned_teacher_id', 'status'
-            ]));
-
-            // Update user email if provided
-            if ($request->has('email')) {
-                $student->user->update(['email' => $request->email]);
-            }
-
-            DB::commit();
-
-            $student->load('user', 'assignedTeacher');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Student updated successfully',
-                'data' => $student
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollback();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating student: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function destroy($id)
     {

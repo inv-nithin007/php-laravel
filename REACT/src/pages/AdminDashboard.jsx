@@ -29,7 +29,7 @@ export default function AdminDashboard() {
       </Typography>
 
 
-      <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
+      <Paper elevation={10} sx={{ p: 3, mb: 4 }}>
         <Typography variant="h6" gutterBottom>Manage Teachers</Typography>
         
         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
@@ -41,14 +41,14 @@ export default function AdminDashboard() {
           </Button>
           <Button 
             variant="outlined"
-            onClick={() => navigate("/teachers-list")}
+            onClick={() => navigate("/teachers")}
           >
             View All Teachers
           </Button>
         </Box>
       </Paper>
 
-      <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
+      <Paper elevation={10} sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>Manage Students</Typography>
         
         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
@@ -60,7 +60,7 @@ export default function AdminDashboard() {
           </Button>
           <Button 
             variant="outlined"
-            onClick={() => navigate("/students-list")}
+            onClick={() => navigate("/students")}
           >
             View All Students
           </Button>

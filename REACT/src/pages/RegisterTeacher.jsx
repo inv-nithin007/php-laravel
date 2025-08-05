@@ -25,7 +25,7 @@ export default function RegisterTeacher({ onClose }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   
   // React Hook Form
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm();
 
   const handleClose = () => {
     if (onClose) {
@@ -190,7 +190,7 @@ export default function RegisterTeacher({ onClose }) {
                 {...register("email", { 
                   required: "Email is required",
                   pattern: {
-                    value: /^\\S+@\\S+$/i,
+                    value: /^\S+@\S+$/i,
                     message: "Invalid email address"
                   }
                 })}
@@ -213,6 +213,22 @@ export default function RegisterTeacher({ onClose }) {
                 })}
                 error={!!errors.password}
                 helperText={errors.password?.message}
+                required
+              />
+              
+              <TextField
+                label="Confirm Password"
+                type="password"
+                placeholder="Confirm password"
+                sx={{ marginBottom: 3, mr: 2 }}
+                {...register("confirmPassword", { 
+                  required: "Please confirm your password",
+                  validate: (value) => {
+                    return value === watch('password') || "Passwords do not match";
+                  }
+                })}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword?.message}
                 required
               />
               
