@@ -11,6 +11,7 @@ import {
   Paper,
   MenuItem
 } from '@mui/material';
+import axios from '../utils/axios';
 
 const GRADE_CLASSES = [
   "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5",
@@ -78,28 +79,11 @@ export default function RegisterStudent({ onClose }) {
 
   const loadTeachers = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.log('No token found for loading teachers');
-        return;
-      }
-
-      const response = await fetch('http://127.0.0.1:8000/api/teachers', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      const result = await response.json();
-      if (result.success) {
-        setTeachers(result.data || []);
-      } else {
-        console.log('Failed to load teachers:', result.message);
-      }
-    } catch (err) {
-      console.error('Error loading teachers:', err);
+      const response = await axios.get('/api/teachers');
+      setTeachers(response.data.data || []);
+    } catch (error) {
+      console.error('Error loading teachers:', error);
+      setMessage('Failed to load teachers list');
     }
   };
 
@@ -122,51 +106,37 @@ export default function RegisterStudent({ onClose }) {
         assigned_teacher_id: formData.assignedTeacher || null
       };
 
-      // Get admin token for authentication
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
+      // API call to create student using axios (with automatic token handling)
+      const response = await axios.post('/api/students', studentData);
       
-      if (!token) {
-        setMessage('Authentication required. Please login as admin.');
-        return;
-      }
-
-      // Check if user is admin
-      if (!userData) {
-        setMessage('User data not found. Please login again.');
-        return;
-      }
-
-      const user = JSON.parse(userData);
-      if (user.role !== 'admin') {
-        setMessage('Access denied. Only administrators can create students.');
-        return;
-      }
-
-      // API call to create student
-      const response = await fetch('http://127.0.0.1:8000/api/students', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(studentData)
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
+      if (response.data.success) {
         setMessage('Student registered successfully!');
         setTimeout(() => {
           handleClose();
         }, 2000);
       } else {
-        setMessage(result.message || 'Error registering student');
+        setMessage(response.data.message || 'Error registering student');
       }
       
     } catch (error) {
+      console.error('Student registration error:', error);
       
-      setMessage('Registration failed. Please try again.');
+      // Handle axios errors properly
+      if (error.response) {
+        // Server responded with error status (422, 500, etc.)
+        const errorMessage = error.response.data?.message || 
+                            error.response.data?.errors?.username?.[0] ||
+                            error.response.data?.errors?.email?.[0] ||
+                            error.response.data?.errors?.roll_number?.[0] ||
+                            'Registration failed';
+        setMessage(errorMessage);
+      } else if (error.request) {
+        // Network error
+        setMessage('Network error. Please check your connection.');
+      } else {
+        // Other error
+        setMessage('Registration failed. Please try again.');
+      }
     }
     
     setLoading(false);

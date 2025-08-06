@@ -30,31 +30,13 @@ export default function StudentDashboard() {
     navigate("/login");
   };
 
-  const handleViewTeachers = async () => {
-    try {
-      navigate('/student-teacher');
-    } catch (error) {
-      console.error("Error fetching teachers:", error);
-    }
-  };
 
-  const handleViewExams = async () => {
-    try {
-      navigate('/exam-list');
-    } catch (error) {
-      console.error("Error fetching exams:", error);
-    }
-  };
+
+ 
 
   
   
-  const handleViewProfile= async () => {
-    try {
-      navigate('/student-profile');
-    } catch (error) {
-      console.error("Error fetching exams:", error);
-    }
-  };
+
 
   if (!user) {
     return (
@@ -96,16 +78,7 @@ export default function StudentDashboard() {
         <Box>
           <Typography variant="h5" mb={3}>Actions</Typography>
           <Box display="flex"  alignItems="center" mb={4}>
-          <Button
-            
-            variant="contained"
-            
-            sx={{py:2, mb: 2,mr:2 }}
-            onClick={handleViewTeachers}
-          >
-            View Assigned Teachers
-          </Button>
-          
+
          
           
           <Button

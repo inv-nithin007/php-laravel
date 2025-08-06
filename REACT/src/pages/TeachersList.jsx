@@ -21,8 +21,9 @@ export default function TeachersList() {
       setLoading(true);
       const response = await axios.get('/api/teachers');
       console.log('Teachers response:', response.data);
-      setTeachers(response.data.data || response.data || []);
-      setMessage(''); // Clear any previous messages
+      setTeachers(response.data.data || []);
+
+      setMessage(''); 
     } catch (error) {
       console.error('Error fetching teachers:', error);
       setMessage('Error loading teachers');

@@ -11,6 +11,7 @@ import {
   Paper,
   MenuItem
 } from '@mui/material';
+import axios from '../utils/axios';
 
 const SUBJECTS = [
   "Mathematics", "Science", "English", "History", "Geography",
@@ -77,51 +78,37 @@ export default function RegisterTeacher({ onClose }) {
         date_of_joining: formData.dateOfJoining
       };
 
-      // Get admin token for authentication
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('user');
+      // API call to register teacher using axios (with automatic token handling)
+      const response = await axios.post('/api/teachers', teacherData);
       
-      if (!token) {
-        setMessage('Authentication required. Please login as admin.');
-        return;
-      }
-
-      // Check if user is admin
-      if (!userData) {
-        setMessage('User data not found. Please login again.');
-        return;
-      }
-
-      const user = JSON.parse(userData);
-      if (user.role !== 'admin') {
-        setMessage('Access denied. Only administrators can create teachers.');
-        return;
-      }
-
-      // API call to register teacher
-      const response = await fetch('http://127.0.0.1:8000/api/teachers', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(teacherData)
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
+      if (response.data.success) {
         setMessage('Teacher registered successfully!');
         setTimeout(() => {
           handleClose();
         }, 2000);
       } else {
-        setMessage(result.message || 'Error registering teacher');
+        setMessage(response.data.message || 'Error registering teacher');
       }
       
     } catch (error) {
       console.error('Teacher registration error:', error);
-      setMessage('Registration failed. Please try again.');
+      
+      // Handle axios errors properly
+      if (error.response) {
+        // Server responded with error status (422, 500, etc.)
+        const errorMessage = error.response.data?.message || 
+                            error.response.data?.errors?.username ||
+                            error.response.data?.errors?.email?.[0] ||
+                            error.response.data?.errors?.employee_id?.[0] ||
+                            'Registration failed';
+        setMessage(errorMessage);
+      } else if (error.request) {
+        // Network error
+        setMessage('Network error. Please check your connection.');
+      } else {
+        // Other error
+        setMessage('Registration failed. Please try again.');
+      }
     }
     
     setLoading(false);
@@ -234,6 +221,7 @@ export default function RegisterTeacher({ onClose }) {
               
               <TextField
                 label="Phone Number"
+                type="number"
                 placeholder="Enter phone number"
                 sx={{ marginBottom: 3, mr: 2 }}
                 {...register("phoneNumber", { required: "Phone number is required" })}
