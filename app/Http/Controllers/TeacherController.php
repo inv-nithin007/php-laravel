@@ -11,14 +11,24 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $teachers = Teacher::with('user')->get();
+            $perPage = 5; // Fixed at 5 teachers per page
+            $page = $request->get('page', 1);
+            
+            $teachers = Teacher::with('user')
+                ->paginate($perPage, ['*'], 'page', $page);
 
             return response()->json([
                 'success' => true,
-                'data' => $teachers
+                'data' => $teachers->items(),
+                'pagination' => [
+                    'last_page' => $teachers->lastPage(),
+                    'total' => $teachers->total(),
+                    'from' => $teachers->firstItem(),
+                    'to' => $teachers->lastItem()
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -41,10 +51,6 @@ class TeacherController extends Controller
                 'subject_specialization' => 'required|string|max:100',
                 'employee_id' => 'required|string|max:20|unique:teachers',
                 'date_of_joining' => 'required|date',
-            ], [
-                'username.unique' => 'This username is already taken. Please choose a different username.',
-                'email.unique' => 'This email address is already registered. Please use a different email.',
-                'employee_id.unique' => 'This employee ID is already in use. Please use a different employee ID.',
             ]);
 
             if ($validator->fails()) {
@@ -111,23 +117,6 @@ class TeacherController extends Controller
         }
     }
 
-    public function show($id)
-    {
-        try {
-            $teacher = Teacher::with('user')->findOrFail($id);
-
-            return response()->json([
-                'success' => true,
-                'data' => $teacher
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Teacher not found'
-            ], 404);
-        }
-    }
-
 
     public function destroy($id)
     {
@@ -151,6 +140,33 @@ class TeacherController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting teacher: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getMyStudents()
+    {
+        try {
+            $user = auth()->user();
+            $teacher = Teacher::where('user_id', $user->id)->first();
+            
+            if (!$teacher) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Teacher profile not found'
+                ], 404);
+            }
+
+            $students = $teacher->students()->with('user')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $students
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading students: ' . $e->getMessage()
             ], 500);
         }
     }

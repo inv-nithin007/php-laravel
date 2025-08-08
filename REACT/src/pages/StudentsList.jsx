@@ -5,7 +5,9 @@ import {
   Typography, 
   Button, 
   Alert, 
-  Paper
+  Paper,
+  Pagination,
+  Stack
 } from '@mui/material';
 import axios from '../utils/axios';
 
@@ -15,14 +17,22 @@ export default function StudentsList() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    last_page: 1,
+    total: 0,
+    from: 0,
+    to: 0
+  });
 
-  const fetchStudents = async () => {
+  const fetchStudents = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/students');
-      console.log('Students response:', response.data);
-      setStudents(response.data.data || response.data || []);
-      setMessage(''); // Clear any previous messages
+      const response = await axios.get(`/api/students?page=${page}`);
+      setStudents(response.data.data || []);
+      setPagination(response.data.pagination);
+      setCurrentPage(page);
+      setMessage('');
     } catch (error) {
       console.error('Error fetching students:', error);
       setMessage('Error loading students');
@@ -46,8 +56,7 @@ export default function StudentsList() {
       setDeleteLoading(studentId);
       await axios.delete(`/api/students/${studentId}`);
       setMessage('Student deleted successfully');
-      // Remove deleted student from state
-      setStudents(students.filter(student => student.id !== studentId));
+      fetchStudents(currentPage);
     } catch (error) {
       console.error('Error deleting student:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred';
@@ -71,8 +80,12 @@ export default function StudentsList() {
     }
   };
 
+  const handlePageChange = (event, page) => {
+    fetchStudents(page);
+  };
+
   useEffect(() => {
-    fetchStudents();
+    fetchStudents(1);
   }, []);
 
   if (loading) {
@@ -147,9 +160,28 @@ export default function StudentsList() {
         ))
       )}
 
+      {/* Pagination Controls */}
+      {pagination.last_page > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <Stack spacing={2} alignItems="center">
+            <Pagination
+              count={pagination.last_page}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              disabled={loading}
+            />
+            <Typography variant="body2" color="text.secondary">
+              Showing {pagination.from} - {pagination.to} of {pagination.total} students
+            </Typography>
+          </Stack>
+        </Box>
+      )}
+
       <Box textAlign="center" sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
         <Button 
-          onClick={fetchStudents}
+          onClick={() => fetchStudents(currentPage)}
           variant="contained"
           size="large"
           disabled={loading}

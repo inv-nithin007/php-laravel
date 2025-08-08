@@ -5,7 +5,9 @@ import {
   Typography, 
   Button, 
   Alert, 
-  Paper
+  Paper,
+  Pagination,
+  Stack
 } from '@mui/material';
 import axios from '../utils/axios';
 
@@ -15,13 +17,21 @@ export default function TeachersList() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    last_page: 1,
+    total: 0,
+    from: 0,
+    to: 0
+  });
 
-  const fetchTeachers = async () => {
+  const fetchTeachers = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/teachers');
-      console.log('Teachers response:', response.data);
+      const response = await axios.get(`/api/teachers?page=${page}`);
       setTeachers(response.data.data || []);
+      setPagination(response.data.pagination);
+      setCurrentPage(page);
 
       setMessage(''); 
     } catch (error) {
@@ -47,8 +57,8 @@ export default function TeachersList() {
       setDeleteLoading(teacherId);
       await axios.delete(`/api/teachers/${teacherId}`);
       setMessage('Teacher deleted successfully');
-      // Remove deleted teacher from state
-      setTeachers(teachers.filter(teacher => teacher.id !== teacherId));
+      // Refresh current page data after deletion
+      fetchTeachers(currentPage);
     } catch (error) {
       console.error('Error deleting teacher:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred';
@@ -72,8 +82,12 @@ export default function TeachersList() {
     }
   };
 
+  const handlePageChange = (event, page) => {
+    fetchTeachers(page);
+  };
+
   useEffect(() => {
-    fetchTeachers();
+    fetchTeachers(1);
   }, []);
 
   if (loading) {
@@ -137,7 +151,7 @@ export default function TeachersList() {
                     size="small"
                     onClick={() => handleDeleteTeacher(teacher.id)}
                     disabled={deleteLoading === teacher.id}
-                    sx={{ alignSelf: 'flex-end' }}
+                    
                   >
                     {deleteLoading === teacher.id ? 'Deleting...' : 'Delete'}
                   </Button>
@@ -148,9 +162,28 @@ export default function TeachersList() {
         ))
       )}
 
+      {/* Pagination Controls */}
+      {pagination.last_page > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <Stack spacing={2} alignItems="center">
+            <Pagination
+              count={pagination.last_page}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+              disabled={loading}
+            />
+            <Typography variant="body2" color="text.secondary">
+              Showing {pagination.from} - {pagination.to} of {pagination.total} teachers
+            </Typography>
+          </Stack>
+        </Box>
+      )}
+
       <Box textAlign="center" sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
         <Button 
-          onClick={fetchTeachers}
+          onClick={() => fetchTeachers(currentPage)}
           variant="contained"
           size="large"
           disabled={loading}

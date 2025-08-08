@@ -102,14 +102,6 @@ class AuthController extends Controller
         ]);
     }
 
-    public function me()
-    {
-        return response()->json([
-            'success' => true,
-            'user' => auth('api')->user()
-        ]);
-    }
-
     public function getProfile()
     {
         try {
@@ -165,7 +157,7 @@ class AuthController extends Controller
             'last_name' => 'sometimes|required|string|min:2|max:50',
             'email' => 'sometimes|required|email|max:100|unique:users,email,' . $user->id,
             'phone_number' => 'sometimes|required|string|max:20',
-            // 'subject_specialization' removed - only admin can update this
+           
         ]);
 
         if ($validator->fails()) {
@@ -178,24 +170,34 @@ class AuthController extends Controller
 
         DB::beginTransaction();
 
-        $teacher = $user->teacher;
-        $teacher->update($request->only([
-            'first_name', 'last_name', 'email', 'phone_number'
-            // 'subject_specialization' removed - only admin can update this
-        ]));
+        try {
+            $teacher = $user->teacher;
+            $teacher->update($request->only([
+                'first_name', 'last_name', 'email', 'phone_number'
+                
+            ]));
 
-        if ($request->has('email')) {
-            $user->update(['email' => $request->email]);
+            if ($request->has('email')) {
+                $user->update(['email' => $request->email]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
-
-        DB::commit();
 
         $teacher->load('user');
 
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully',
-            'data' => $teacher
+            'data' => $teacher,
+            'user' => array_merge($user->toArray(), [
+                'first_name' => $teacher->first_name,
+                'last_name' => $teacher->last_name,
+                'phone_number' => $teacher->phone_number
+            ])
         ]);
     }
 
@@ -207,7 +209,7 @@ class AuthController extends Controller
             'email' => 'sometimes|required|email|max:100|unique:users,email,' . $user->id,
             'phone_number' => 'sometimes|required|string|max:20',
             // 'class_grade' removed - only admin can update this
-            'date_of_birth' => 'sometimes|required|date',
+            // 'date_of_birth' removed - not updatable by user
         ]);
 
         if ($validator->fails()) {
@@ -220,24 +222,35 @@ class AuthController extends Controller
 
         DB::beginTransaction();
 
-        $student = $user->student;
-        $student->update($request->only([
-            'first_name', 'last_name', 'email', 'phone_number', 'date_of_birth'
-            // 'class_grade' removed - only admin can update this
-        ]));
+        try {
+            $student = $user->student;
+            $student->update($request->only([
+                'first_name', 'last_name', 'email', 'phone_number'
+                // 'class_grade' removed - only admin can update this
+                // 'date_of_birth' removed - not updatable by user
+            ]));
 
-        if ($request->has('email')) {
-            $user->update(['email' => $request->email]);
+            if ($request->has('email')) {
+                $user->update(['email' => $request->email]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
-
-        DB::commit();
 
         $student->load('user', 'assignedTeacher');
 
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully',
-            'data' => $student
+            'data' => $student,
+            'user' => array_merge($user->toArray(), [
+                'first_name' => $student->first_name,
+                'last_name' => $student->last_name,
+                'phone_number' => $student->phone_number
+            ])
         ]);
     }
 

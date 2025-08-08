@@ -141,7 +141,17 @@ export default function RegisterTeacher({ onClose }) {
                 label="First Name"
                 placeholder="Enter first name"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("firstName", { required: "First name is required" })}
+                {...register("firstName", { 
+                  required: "First name is required",
+                  minLength: {
+                    value: 2,
+                    message: "First name must be at least 2 characters"
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z\s'-]+$/,
+                    message: "First name can only contain letters, spaces, hyphens, and apostrophes"
+                  }
+                })}
                 error={!!errors.firstName}
                 helperText={errors.firstName?.message}
                 required
@@ -151,7 +161,17 @@ export default function RegisterTeacher({ onClose }) {
                 label="Last Name"
                 placeholder="Enter last name"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("lastName", { required: "Last name is required" })}
+                {...register("lastName", { 
+                  required: "Last name is required",
+                  minLength: {
+                    value: 2,
+                    message: "Last name must be at least 2 characters"
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z\s'-]+$/,
+                    message: "Last name can only contain letters, spaces, hyphens, and apostrophes"
+                  }
+                })}
                 error={!!errors.lastName}
                 helperText={errors.lastName?.message}
                 required
@@ -161,7 +181,17 @@ export default function RegisterTeacher({ onClose }) {
                 label="Username"
                 placeholder="Enter username"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("username", { required: "Username is required" })}
+                {...register("username", { 
+                  required: "Username is required",
+                  minLength: {
+                    value: 3,
+                    message: "Username must be at least 3 characters"
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z0-9_]+$/,
+                    message: "Username can only contain letters, numbers, and underscores"
+                  }
+                })}
                 error={!!errors.username}
                 helperText={errors.username?.message}
                 required
@@ -177,8 +207,8 @@ export default function RegisterTeacher({ onClose }) {
                 {...register("email", { 
                   required: "Email is required",
                   pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: "Invalid email address"
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Please enter a valid email address"
                   }
                 })}
                 error={!!errors.email}
@@ -221,12 +251,23 @@ export default function RegisterTeacher({ onClose }) {
               
               <TextField
                 label="Phone Number"
-                type="number"
-                placeholder="Enter phone number"
+                placeholder="Enter 10-digit phone number"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("phoneNumber", { required: "Phone number is required" })}
+                inputProps={{
+                  maxLength: 10,
+                  pattern: '[0-9]*',
+                  inputMode: 'numeric'
+                }}
+                {...register("phoneNumber", { 
+                  required: "Phone number is required",
+                  pattern: {
+                    value: /^\d{10}$/,
+                    message: "Phone number must be exactly 10 digits"
+                  },
+                  setValueAs: (value) => value.replace(/\D/g, '').slice(0, 10)
+                })}
                 error={!!errors.phoneNumber}
-                helperText={errors.phoneNumber?.message}
+                helperText={errors.phoneNumber?.message || "Enter exactly 10 digits"}
                 required
               />
             </Box>
@@ -250,11 +291,23 @@ export default function RegisterTeacher({ onClose }) {
               
               <TextField
                 label="Employee ID"
-                placeholder="Enter employee ID"
+                placeholder="Enter 4-digit employee ID"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("employeeId", { required: "Employee ID is required" })}
+                inputProps={{
+                  maxLength: 4,
+                  pattern: '[0-9]*',
+                  inputMode: 'numeric'
+                }}
+                {...register("employeeId", { 
+                  required: "Employee ID is required",
+                  pattern: {
+                    value: /^\d{4}$/,
+                    message: "Employee ID must be exactly 4 digits"
+                  },
+                  setValueAs: (value) => value.replace(/\D/g, '').slice(0, 4)
+                })}
                 error={!!errors.employeeId}
-                helperText={errors.employeeId?.message}
+                helperText={errors.employeeId?.message || "Enter exactly 4 digits"}
                 required
               />
 

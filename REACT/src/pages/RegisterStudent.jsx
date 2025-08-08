@@ -171,7 +171,17 @@ export default function RegisterStudent({ onClose }) {
                 label="First Name"
                 placeholder="Enter first name"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("firstName", { required: "First name is required" })}
+                {...register("firstName", { 
+                  required: "First name is required",
+                  minLength: {
+                    value: 2,
+                    message: "First name must be at least 2 characters"
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z\s'-]+$/,
+                    message: "First name can only contain letters, spaces, hyphens, and apostrophes"
+                  }
+                })}
                 error={!!errors.firstName}
                 helperText={errors.firstName?.message}
                 required
@@ -181,7 +191,17 @@ export default function RegisterStudent({ onClose }) {
                 label="Last Name"
                 placeholder="Enter last name"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("lastName", { required: "Last name is required" })}
+                {...register("lastName", { 
+                  required: "Last name is required",
+                  minLength: {
+                    value: 2,
+                    message: "Last name must be at least 2 characters"
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z\s'-]+$/,
+                    message: "Last name can only contain letters, spaces, hyphens, and apostrophes"
+                  }
+                })}
                 error={!!errors.lastName}
                 helperText={errors.lastName?.message}
                 required
@@ -191,7 +211,17 @@ export default function RegisterStudent({ onClose }) {
                 label="Username"
                 placeholder="Enter username"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("username", { required: "Username is required" })}
+                {...register("username", { 
+                  required: "Username is required",
+                  minLength: {
+                    value: 3,
+                    message: "Username must be at least 3 characters"
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z0-9_]+$/,
+                    message: "Username can only contain letters, numbers, and underscores"
+                  }
+                })}
                 error={!!errors.username}
                 helperText={errors.username?.message}
                 required
@@ -207,8 +237,8 @@ export default function RegisterStudent({ onClose }) {
                 {...register("email", { 
                   required: "Email is required",
                   pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: "Invalid email address"
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Please enter a valid email address"
                   }
                 })}
                 error={!!errors.email}
@@ -257,7 +287,21 @@ export default function RegisterStudent({ onClose }) {
                 label="Roll Number"
                 placeholder="Enter roll number"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("rollNumber", { required: "Roll number is required" })}
+                {...register("rollNumber", { 
+                  required: "Roll number is required",
+                  pattern: {
+                    value: /^\d{1,4}$/,
+                    message: "Roll number must be 1-4 digits only (0-9999)"
+                  },
+                  min: {
+                    value: 0,
+                    message: "Roll number cannot be negative"
+                  },
+                  max: {
+                    value: 9999,
+                    message: "Roll number cannot exceed 9999"
+                  }
+                })}
                 error={!!errors.rollNumber}
                 helperText={errors.rollNumber?.message}
                 required
@@ -294,11 +338,23 @@ export default function RegisterStudent({ onClose }) {
             <Box display="flex" alignItems="center" mb={4}>
               <TextField
                 label="Phone Number"
-                placeholder="Enter phone number"
+                placeholder="Enter 10-digit phone number"
                 sx={{ marginBottom: 3, mr: 2 }}
-                {...register("phoneNumber", { required: "Phone number is required" })}
+                inputProps={{
+                  maxLength: 10,
+                  pattern: '[0-9]*',
+                  inputMode: 'numeric'
+                }}
+                {...register("phoneNumber", { 
+                  required: "Phone number is required",
+                  pattern: {
+                    value: /^\d{10}$/,
+                    message: "Phone number must be exactly 10 digits"
+                  },
+                  setValueAs: (value) => value.replace(/\D/g, '').slice(0, 10)
+                })}
                 error={!!errors.phoneNumber}
-                helperText={errors.phoneNumber?.message}
+                helperText={errors.phoneNumber?.message || "Enter exactly 10 digits"}
                 required
               />
               <TextField

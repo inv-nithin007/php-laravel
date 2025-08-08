@@ -1,0 +1,234 @@
+SCHOOL MANAGEMENT SYSTEM - API DOCUMENTATION
+=====================================================
+
+BASE URL: http://127.0.0.1:8000/api
+
+AUTHENTICATION
+==============
+All protected routes require Bearer token in Authorization header:
+Authorization: Bearer <jwt_token>
+
+PUBLIC ENDPOINTS
+================
+
+1. Login
+   POST /auth/login
+   Body: {
+     "username": "string",
+     "password": "string"
+   }
+   Response: {
+     "success": true,
+     "message": "Login successful",
+     "user": {user_object},
+     "token": "jwt_token"
+   }
+
+2. API Test
+   GET /test
+   Response: {
+     "message": "API is working!"
+   }
+
+PROTECTED ENDPOINTS (Requires Authentication)
+============================================
+
+AUTH ROUTES
+-----------
+
+3. Logout
+   POST /auth/logout
+   Headers: Authorization: Bearer <token>
+   Response: {
+     "success": true,
+     "message": "Successfully logged out"
+   }
+
+4. Get Current User
+   GET /auth/me
+   Headers: Authorization: Bearer <token>
+   Response: {
+     "success": true,
+     "user": {user_object}
+   }
+
+5. Get Profile (Teachers & Students Only)
+   GET /profile
+   Headers: Authorization: Bearer <token>
+   Response: {
+     "success": true,
+     "data": {profile_data_with_relationships}
+   }
+
+6. Update Profile (Teachers & Students Only)
+   PUT /profile
+   Headers: Authorization: Bearer <token>
+   Body (Teacher): {
+     "first_name": "string",
+     "last_name": "string",
+     "email": "string",
+     "phone_number": "string"
+   }
+   Body (Student): {
+     "first_name": "string",
+     "last_name": "string",
+     "email": "string",
+     "phone_number": "string",
+     "date_of_birth": "YYYY-MM-DD"
+   }
+
+7. Change Password (All Users)
+   PUT /change-password
+   Headers: Authorization: Bearer <token>
+   Body: {
+     "current_password": "string",
+     "new_password": "string",
+     "new_password_confirmation": "string"
+   }
+
+ADMIN ONLY ROUTES
+=================
+
+8. Register User (Admin Only)
+   POST /auth/register
+   Headers: Authorization: Bearer <token>
+   Body: {
+     "username": "string",
+     "email": "string",
+     "password": "string",
+     "role": "teacher|student"
+   }
+
+TEACHER MANAGEMENT (Admin Only)
+-------------------------------
+
+9. Create Teacher
+   POST /teachers
+   Headers: Authorization: Bearer <token>
+   Body: {
+     "user_id": "integer",
+     "first_name": "string",
+     "last_name": "string",
+     "email": "string",
+     "phone_number": "string",
+     "subject_specialization": "string",
+     "employee_id": "string",
+     "date_of_joining": "YYYY-MM-DD"
+   }
+
+10. Delete Teacher
+    DELETE /teachers/{id}
+    Headers: Authorization: Bearer <token>
+
+STUDENT MANAGEMENT (Admin Only)
+-------------------------------
+
+11. Create Student
+    POST /students
+    Headers: Authorization: Bearer <token>
+    Body: {
+      "user_id": "integer",
+      "first_name": "string",
+      "last_name": "string",
+      "email": "string",
+      "phone_number": "string",
+      "roll_number": "string",
+      "class_grade": "string",
+      "date_of_birth": "YYYY-MM-DD",
+      "admission_date": "YYYY-MM-DD",
+      "assigned_teacher_id": "integer|null"
+    }
+
+12. Delete Student
+    DELETE /students/{id}
+    Headers: Authorization: Bearer <token>
+
+PUBLIC READ ROUTES (All Authenticated Users)
+============================================
+
+TEACHER ROUTES
+--------------
+
+13. List All Teachers
+    GET /teachers
+    Headers: Authorization: Bearer <token>
+    Response: {
+      "success": true,
+      "data": [array_of_teachers]
+    }
+
+14. Get Single Teacher
+    GET /teachers/{id}
+    Headers: Authorization: Bearer <token>
+    Response: {
+      "success": true,
+      "data": {teacher_object}
+    }
+
+STUDENT ROUTES
+--------------
+
+15. List All Students
+    GET /students
+    Headers: Authorization: Bearer <token>
+    Response: {
+      "success": true,
+      "data": [array_of_students]
+    }
+
+16. Get Single Student
+    GET /students/{id}
+    Headers: Authorization: Bearer <token>
+    Response: {
+      "success": true,
+      "data": {student_object}
+    }
+
+ROLE-BASED ACCESS SUMMARY
+=========================
+
+Admin:
+- All endpoints
+- Create/Delete users, teachers, students
+- Register new users
+
+Teachers:
+- View all teachers and students
+- Update own profile
+- Change password
+
+Students:
+- View all teachers and students
+- Update own profile
+- Change password
+
+ERROR RESPONSES
+===============
+
+Validation Error (422):
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {validation_errors}
+}
+
+Authentication Error (401):
+{
+  "success": false,
+  "message": "Unauthorized"
+}
+
+Server Error (500):
+{
+  "success": false,
+  "message": "Error message"
+}
+
+NOTES
+=====
+- All timestamps are in UTC
+- JWT token expires after 60 minutes (configurable in config/jwt.php)
+- Refresh token TTL is 20160 minutes (14 days)
+- All requests should include Content-Type: application/json
+- Password minimum length is 6 characters
+- Username minimum length is 3 characters

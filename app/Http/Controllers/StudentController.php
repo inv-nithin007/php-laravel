@@ -11,14 +11,24 @@ use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $students = Student::with('user', 'assignedTeacher')->get();
+            $perPage = 5;
+            $page = $request->get('page', 1);
+            
+            $students = Student::with('user', 'assignedTeacher')
+                ->paginate($perPage, ['*'], 'page', $page);
 
             return response()->json([
                 'success' => true,
-                'data' => $students
+                'data' => $students->items(),
+                'pagination' => [
+                    'last_page' => $students->lastPage(),
+                    'total' => $students->total(),
+                    'from' => $students->firstItem(),
+                    'to' => $students->lastItem()
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -38,15 +48,11 @@ class StudentController extends Controller
                 'first_name' => 'required|string|min:2|max:50',
                 'last_name' => 'required|string|min:2|max:50',
                 'phone_number' => 'required|string|max:20',
-                'roll_number' => 'required|string|max:20|unique:students',
+                'roll_number' => 'required|numeric|digits_between:1,4|unique:students',
                 'class_grade' => 'required|string|max:50',
                 'date_of_birth' => 'required|date',
                 'admission_date' => 'required|date',
                 'assigned_teacher_id' => 'nullable|exists:teachers,id',
-            ], [
-                'username.unique' => 'This username is already taken. Please choose a different username.',
-                'email.unique' => 'This email address is already registered. Please use a different email.',
-                'roll_number.unique' => 'This roll number is already assigned to another student. Please use a different roll number.',
             ]);
 
             if ($validator->fails()) {
@@ -115,22 +121,6 @@ class StudentController extends Controller
         }
     }
 
-    public function show($id)
-    {
-        try {
-            $student = Student::with('user', 'assignedTeacher')->findOrFail($id);
-
-            return response()->json([
-                'success' => true,
-                'data' => $student
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Student not found'
-            ], 404);
-        }
-    }
 
 
     public function destroy($id)

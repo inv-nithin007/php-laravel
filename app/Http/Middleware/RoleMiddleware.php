@@ -9,14 +9,16 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (!auth()->check()) {
+        $user = auth('api')->user();
+        
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Authentication required. Please login first.'
             ], 401);
         }
 
-        $userRole = auth()->user()->role;
+        $userRole = $user->role;
         
         if (!in_array($userRole, $roles)) {
             return response()->json([

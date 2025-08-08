@@ -34,14 +34,17 @@ Route::middleware(['auth:api'])->group(function () {
     
     // Routes accessible by authenticated users (Admin, Teachers, Students)
     Route::get('/teachers', [TeacherController::class, 'index']);
-    Route::get('/teachers/{id}', [TeacherController::class, 'show']);
     Route::get('/students', [StudentController::class, 'index']);
-    Route::get('/students/{id}', [StudentController::class, 'show']);
     
     // Self-profile management routes (Teachers and Students only)
     Route::middleware(['role:teacher,student'])->group(function () {
         Route::get('/profile', [AuthController::class, 'getProfile']);
         Route::put('/profile', [AuthController::class, 'updateProfile']);
+    });
+    
+    // Teacher-only routes
+    Route::middleware(['role:teacher'])->group(function () {
+        Route::get('/my-students', [TeacherController::class, 'getMyStudents']);
     });
     
     // Password change route (All authenticated users)

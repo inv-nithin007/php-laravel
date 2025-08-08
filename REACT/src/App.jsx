@@ -8,6 +8,9 @@ import TeachersList from "./pages/TeachersList";
 import RegisterStudent from "./pages/RegisterStudent";
 import RegisterTeacher from "./pages/RegisterTeacher";
 import ChangePassword from "./pages/ChangePassword";
+import StudentProfile from "./pages/StudentProfile";
+import TeacherProfile from "./pages/TeacherProfile";
+import MyStudents from "./pages/MyStudents";
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
         <Route path="/register-student" element={<RegisterStudent />} />
         <Route path="/register-teacher" element={<RegisterTeacher />} />
         <Route path="/change" element={<ChangePassword />} />
+        <Route path="/student-profile" element={<StudentProfile />} />
+        <Route path="/teacher-profile" element={<TeacherProfile />} />
+        <Route path="/my-students" element={<MyStudents />} />
         <Route path="/" element={<Login />} />
         <Route path="*" element={<Login />} />
       </Routes>

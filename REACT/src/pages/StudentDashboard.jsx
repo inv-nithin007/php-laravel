@@ -9,19 +9,30 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
     
-    if (!token || !userData) {
+    if (!token) {
       navigate("/login");
       return;
     }
     
-    const parsedUser = JSON.parse(userData);
-    setUser({
-      name: parsedUser.first_name || parsedUser.username,
-      role: "student",
-      email: parsedUser.email
-    });
+    // Fetch fresh profile data from API
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get('/api/profile');
+        const profileData = response.data.data;
+        
+        setUser({
+          name: profileData.first_name + ' ' + profileData.last_name,
+          role: "student",
+          email: profileData.email
+        });
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        navigate("/login");
+      }
+    };
+    
+    fetchProfile();
   }, [navigate]);
 
   const handleLogout = () => {
